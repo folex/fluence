@@ -16,6 +16,8 @@
 
 package fluence.statemachine
 
+import java.nio.ByteBuffer
+
 import cats.Applicative
 import cats.effect.Effect
 import cats.effect.concurrent.Ref
@@ -108,7 +110,7 @@ class AbciHandler[F[_]: Effect: LogFactory](
             .setCode(code)
             .setInfo(info)
             .setHeight(height)
-            .setValue(ByteString.copyFrom(result))
+            .setValue(ByteString.copyFrom(result.output))
             .build
       }
       .unsafeRunSync()

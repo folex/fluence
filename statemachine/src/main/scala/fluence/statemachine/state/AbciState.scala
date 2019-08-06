@@ -19,6 +19,7 @@ package fluence.statemachine.state
 import cats.data.StateT
 import cats.{Applicative, Functor, Monad}
 import fluence.statemachine.data.{Tx, TxCode}
+import fluence.vm.InvocationResult
 import scodec.bits.ByteVector
 
 import scala.collection.immutable.Queue
@@ -37,7 +38,7 @@ case class AbciState(
   height: Long = 0,
   appHash: ByteVector = ByteVector.empty,
   blockSessions: Set[String] = Set.empty,
-  responses: Queue[(Tx.Head, Array[Byte])] = Queue.empty,
+  responses: Queue[(Tx.Head, InvocationResult)] = Queue.empty,
   sessions: Sessions = Sessions()
 )
 
@@ -75,7 +76,7 @@ object AbciState {
    * @param limit Max number of responses to store
    * @return List of dropped responses
    */
-  def boundResponses[F[_]: Monad](limit: Int): StateT[F, AbciState, List[(Tx.Head, Array[Byte])]] =
+  def boundResponses[F[_]: Monad](limit: Int): StateT[F, AbciState, List[(Tx.Head, InvocationResult)]] =
     StateT.get[F, AbciState].flatMap {
       case st if st.responses.size > limit ⇒
         // Can dequeue safely
@@ -99,7 +100,9 @@ object AbciState {
    * @param data Response data
    * @param resultsLimit How many results we are allowed to keep in cache
    */
-  def putResponse[F[_]: Monad](head: Tx.Head, data: Array[Byte], resultsLimit: Int = 512): StateT[F, AbciState, Unit] =
+  def putResponse[F[_]: Monad](head: Tx.Head,
+                               data: InvocationResult,
+                               resultsLimit: Int = 512): StateT[F, AbciState, Unit] =
     for {
       _ ← StateT.modify[F, AbciState](s ⇒ s.copy(responses = s.responses.enqueue(head -> data)))
       _ ← boundResponses(resultsLimit)

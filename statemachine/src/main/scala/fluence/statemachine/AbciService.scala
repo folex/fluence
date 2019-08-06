@@ -34,6 +34,7 @@ import fluence.statemachine.control.{BlockReceipt, ControlSignals}
 import fluence.statemachine.data.{QueryCode, Tx, TxCode}
 import fluence.statemachine.state.AbciState
 import fluence.statemachine.vm.VmOperationInvoker
+import fluence.vm.InvocationResult
 import scodec.bits.ByteVector
 
 import scala.language.higherKinds
@@ -76,7 +77,7 @@ class AbciService[F[_]: Monad: Effect](
           // Invoke
           vm.invoke(tx.data.value)
             // Save the tx response to AbciState
-            .semiflatMap(result ⇒ AbciState.putResponse[F](tx.head, result.output).map(_ ⇒ txs).run(st).map(Left(_)))
+            .semiflatMap(result ⇒ AbciState.putResponse[F](tx.head, result).map(_ ⇒ txs).run(st).map(Left(_)))
             .leftSemiflatMap(err ⇒ Log[F].error(s"VM invoke failed: $err for tx: $tx").as(err))
             .getOrElse(Right(st)) // TODO do not ignore vm error
 
@@ -158,7 +159,7 @@ class AbciService[F[_]: Monad: Effect](
           state ⇒
             QueryResponse(
               state.height,
-              Array.emptyByteArray,
+              InvocationResult(Array.emptyByteArray, 0),
               QueryCode.NotFound.id,
               s"Cannot parse query path: $path, must be in `sessionId/nonce` format"
           )
@@ -176,14 +177,14 @@ class AbciService[F[_]: Monad: Effect](
               if (st.sessions.data.get(head.session).exists(_.nextNonce <= head.nonce))
                 QueryResponse(
                   st.height,
-                  Array.emptyByteArray,
+                  InvocationResult(Array.emptyByteArray, 0),
                   QueryCode.Pending.id,
                   s"Transaction is not yet processed: $path"
                 )
               else
                 QueryResponse(
                   st.height,
-                  Array.emptyByteArray,
+                  InvocationResult(Array.emptyByteArray, 0),
                   QueryCode.NotFound.id,
                   s"No response found for path: $path"
                 )
@@ -261,7 +262,7 @@ object AbciService {
    * @param code response code
    * @param info response message
    */
-  case class QueryResponse(height: Long, result: Array[Byte], code: Int, info: String)
+  case class QueryResponse(height: Long, result: InvocationResult, code: Int, info: String)
 
   /**
    * A structure for aggregating data specific to building `CheckTx`/`DeliverTx` ABCI response.
