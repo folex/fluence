@@ -47,13 +47,15 @@ case class MainModuleConfig(
  * Environment module settings.
  *
  * @param name a name of the environment module
- * @param spentGasFunctionName a name of the function that returns spent gas
- * @param clearStateFunction a name of the function that clears a state of the environment module
+ * @param getSpentGasFunctionName a name of the function that returns spent gas
+ * @param getEICFunctionName a name of the function that returns spent executed instruction counter
+ * @param clearStateFunctionName a name of the function that clears a state of the environment module
  */
 case class EnvModuleConfig(
   name: String,
-  spentGasFunctionName: String,
-  clearStateFunction: String
+  getSpentGasFunctionName: String,
+  getEICFunctionName: String,
+  clearStateFunctionName: String
 )
 
 /**

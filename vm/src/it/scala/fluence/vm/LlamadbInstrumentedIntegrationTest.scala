@@ -38,13 +38,16 @@ class LlamadbInstrumentedIntegrationTest extends LlamadbIntegrationTestInterface
   "instrumented llamadb app" should {
 
     "be able to instantiate" in {
-      (for {
+      val res = for {
         vm ← WasmVm[IO](NonEmptyList.one(llamadbFilePath), MemoryHasher[IO], "fluence.vm.client.4Mb")
         state ← vm.getVmState[IO].toVmError
       } yield {
         state should not be None
 
-      }).success()
+      }
+
+      val tt = res.failed()
+      val yy = tt
 
     }
 
@@ -56,6 +59,7 @@ class LlamadbInstrumentedIntegrationTest extends LlamadbIntegrationTestInterface
       } yield {
         checkTestResult(createResult, "rows inserted")
         createResult.spentGas should equal(349L)
+        createResult.eic should equal(349L)
 
       }).success()
 
@@ -88,9 +92,16 @@ class LlamadbInstrumentedIntegrationTest extends LlamadbIntegrationTestInterface
         )
 
         createResult.spentGas should equal(349L)
+        createResult.eic should equal(349L)
+
         emptySelectResult.spentGas should equal(349L)
+        emptySelectResult.eic should equal(349L)
+
         selectAllResult.spentGas should equal(219L)
+        selectAllResult.eic should equal(219L)
+
         explainResult.spentGas should equal(219L)
+        explainResult.eic should equal(219L)
 
       }).success()
 
@@ -108,6 +119,7 @@ class LlamadbInstrumentedIntegrationTest extends LlamadbIntegrationTestInterface
       } yield {
         checkTestResult(insertResult, "rows inserted")
         insertResult.spentGas should equal(304L)
+        insertResult.eic should equal(304L)
 
       }).success()
     }

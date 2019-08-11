@@ -104,15 +104,14 @@ fn main() -> Result<(), ExitFailure> {
                 |module: Module| {
                     // instrument for gas metering
                     let gas_rules = rules::Set::new(1, gas_costs::gas_cost_table());
-                    pwasm_utils::inject_gas_counter(
+                    let module = pwasm_utils::inject_gas_counter(
                         module,
                         &gas_rules,
                         HOST_MODULE_NAME,
                         HOST_GAS_FUNC_NAME,
                     )
-                    .expect("Error while deserializing file")
+                    .expect("Error while deserializing file");
 
-                    /*
                     // instrument for EIC metering
                     let gas_rules = rules::Set::new(1, Default::default());
                     pwasm_utils::inject_gas_counter(
@@ -122,7 +121,6 @@ fn main() -> Result<(), ExitFailure> {
                         HOST_EIC_FUNC_NAME,
                     )
                     .expect("Error while deserializing file")
-                    */
                 },
             )?;
             Ok(())

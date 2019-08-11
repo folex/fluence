@@ -45,8 +45,12 @@ import scala.language.higherKinds
 
 /**
  * Represents VM execution result.
+ *
+ * @param output the result of VM invocation
+ * @param spentGas spent gas by this invoke
+ * @param eic number of execution instructions by this invoke
  */
-case class InvocationResult(output: Array[Byte], spentGas: Long)
+case class InvocationResult(output: Array[Byte], spentGas: Long, eic: Long)
 
 /**
  * Virtual Machine api.
@@ -184,8 +188,9 @@ object WasmVm {
       envModule ← EnvModule[F](
         nativeModule,
         scriptCxt,
-        config.envModuleConfig.spentGasFunctionName,
-        config.envModuleConfig.clearStateFunction
+        config.envModuleConfig.getSpentGasFunctionName,
+        config.envModuleConfig.getEICFunctionName,
+        config.envModuleConfig.clearStateFunctionName
       )
 
       (mainModule, sideModules) ← Traverse[List]

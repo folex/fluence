@@ -64,9 +64,9 @@ class AsmbleWasmVm(
       // and this kind of non-determinism can break all verification game).
       extractedResult ← extractResultFromWasmModule(resultOffset)
 
-      spentGas ← envModule.getSpentGas()
+      envState ← envModule.getState()
 
-    } yield InvocationResult(extractedResult, spentGas)
+    } yield InvocationResult(extractedResult, envState.spentGas, envState.EIC)
 
   override def getVmState[F[_]: LiftIO: Monad]: EitherT[F, GetVmStateError, ByteVector] =
     for {
