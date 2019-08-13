@@ -27,10 +27,10 @@ export interface QueryResponse {
 export enum ErrorType {
     TendermintError = "TendermintError",
     TransportError = "TransportError",
-    MalformedError = "MalformedError",
+    MalformedResponseError = "MalformedResponseError",
     ParsingError = "ParsingError",
     SessionClosed = "SessionClosed",
-    InternalError = "InternalError"
+    UnknownResponseCode = "UnknownResponseCode"
 }
 
 /**

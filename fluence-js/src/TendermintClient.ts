@@ -98,7 +98,7 @@ export class TendermintClient {
             if (unparsedResponse.data.error) {
                 return Promise.reject(error(ErrorType.TendermintError, `The cluster returned an error. Head: ${path}, response: ${JSON.stringify(unparsedResponse.data)}`, path));
             }
-            return Promise.reject(error(ErrorType.MalformedError, `Cannot find 'response' field in a query response. Head: ${path}, response: ${JSON.stringify(unparsedResponse.data)}`, path));
+            return Promise.reject(error(ErrorType.MalformedResponseError, `Cannot find 'response' field in a query response. Head: ${path}, response: ${JSON.stringify(unparsedResponse.data)}`, path));
         }
 
         const response = unparsedResponse.data.result.response;
@@ -128,7 +128,7 @@ export class TendermintClient {
                 return none;
             }
             default: {
-                return Promise.reject(error(ErrorType.InternalError, `unknown code ${response.code} response: ${JSON.stringify(response)}`, path));
+                return Promise.reject(error(ErrorType.UnknownResponseCode, `unknown code ${response.code} response: ${JSON.stringify(response)}`, path));
             }
         }
     }
