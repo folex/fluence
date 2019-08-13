@@ -190,7 +190,7 @@ export class Session {
             this.markFail();
             return {
                 status: RequestStatus.E_REQUEST,
-                error: err,
+                error: error(ErrorType.TransportError, err.toString(), path),
             }
         }
     }
@@ -225,7 +225,7 @@ export class Session {
             this.markFail();
             return {
                 status: RequestStatus.E_REQUEST,
-                error: err,
+                error: error(ErrorType.TransportError, err.toString(), request.path),
             }
         }
     }
@@ -267,7 +267,7 @@ export class Session {
             this.markSessionAsClosed(cause);
             return {
                 status: RequestStatus.E_SESSION_CLOSED,
-                error: error(ErrorType.SessionClosed, cause),
+                error: error(ErrorType.SessionClosed, cause, request.path),
             }
         }
 
