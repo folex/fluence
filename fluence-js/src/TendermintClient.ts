@@ -63,8 +63,7 @@ export class TendermintClient {
      */
     broadcastTxSync(payload: string): Promise<BroadcastTxSyncResponse> {
         d("broadCastTxSync request");
-        return this.client.broadcastTxSync(payload)
-            .then(parseResponse);
+        return this.client.broadcastTxSync(payload).then(parseResponse);
     }
 
     /**
@@ -98,7 +97,7 @@ export class TendermintClient {
             if (unparsedResponse.data.error) {
                 return Promise.reject(error(ErrorType.TendermintError, `The cluster returned an error. Head: ${path}, response: ${JSON.stringify(unparsedResponse.data)}`));
             }
-            return Promise.reject(error(ErrorType.MalformedError, `Cannot find 'response' field in a query response. Head: ${path}, response: ${JSON.stringify(unparsedResponse.data)}`));
+            return Promise.reject(error(ErrorType.MalformedResponseError, `Cannot find 'response' field in a query response. Head: ${path}, response: ${JSON.stringify(unparsedResponse.data)}`));
         }
 
         const response = unparsedResponse.data.result.response;
@@ -128,7 +127,7 @@ export class TendermintClient {
                 return none;
             }
             default: {
-                return Promise.reject(error(ErrorType.InternalError, `unknown code ${response.code} response: ${JSON.stringify(response)}`));
+                return Promise.reject(error(ErrorType.UnknownResponseCode, `unknown code ${response.code} response: ${JSON.stringify(response)}`));
             }
         }
     }

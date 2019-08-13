@@ -4,6 +4,9 @@ import {getWorkerStatus} from "./contract";
 import {RequestState, RequestStatus, Session} from "./Session";
 import {ErrorType, Result} from "./Result";
 
+// How many times to retry a failing request before banning a session
+const RetriesPerSession = 3;
+
 // All sessions with workers from an app
 export class AppSession {
     private sessionId: string;
@@ -48,12 +51,17 @@ export class AppSession {
         const { status, result, error } = await call(session);
 
         if (status !== RequestStatus.OK) {
-            if (status === RequestStatus.E_REQUEST && retryCount < this.workerSessions.length) {
-                if (error && error.errorType == ErrorType.TendermintError) {
-                    throw error;
+            if (status === RequestStatus.E_REQUEST && !session.isBanned()) {
+                if (error) {
+                    if (error.errorType == ErrorType.TendermintError || error.errorType == ErrorType.SessionClosed) {
+                        throw error;
+                    }
+
+                    if (error.errorType == ErrorType.TransportError) {
+                        session.ban();
+                        console.log(`Worker's session is banned until ${session.banTime()} milliseconds cause of: ${error}`);
+                    }
                 }
-                session.ban();
-                console.log(`Worker's session is banned until ${session.banTime()} milliseconds cause of: ${error}`);
                 return this.performRequest(call, retryCount + 1);
             }
 

@@ -25,7 +25,7 @@ export interface DeployableApp {
     requestExamples?: string[];
 }
 
-export const deployableAppIds: DeployableAppId[] = ['sqlite', 'redis', 'llamadb', 'upload']; // 'dice, guess, tictactoe' are hidden intentionally
+export const deployableAppIds: DeployableAppId[] = ['sqlite', 'redis', 'llamadb', 'upload', 'dice', 'guess', 'tictactoe', "hello_world"]; // are hidden intentionally
 
 export const deployableApps: { [key: string]: DeployableApp } = {
     llamadb: {
@@ -60,6 +60,14 @@ export const deployableApps: { [key: string]: DeployableApp } = {
         name: 'Tic Tac Toe',
         shortName: 'Tic Tac Toe',
         storageHash: '0x268622BE3A3CB9473E764C229BE02ED9228170FF61F876CA3634590D748E1CEF',
+        storageType: StorageType.Ipfs,
+        clusterSize: 4
+    },
+    hello_world: {
+        // Hash: QmUAvpnai3BS1pPtpQfo6xaobmnJDqPrjpYzGCziQPanrR
+        name: 'Hello world app',
+        shortName: 'Hello world',
+        storageHash: '0x56A888F29DE6DB770C3591BD90EB0AA127A5C4A0DA7C3C17FB54EBB2DDAA3E2E',
         storageType: StorageType.Ipfs,
         clusterSize: 4
     },

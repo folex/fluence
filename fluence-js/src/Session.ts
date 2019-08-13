@@ -51,6 +51,8 @@ export class Session {
     private readonly defaultBanTime: number;
     private lastBanTime: number;
     private bannedTill: number;
+    private failCount: number;
+    private readonly maxFailCount: number;
 
     static genSessionId(): string {
         return randomstring.generate(12);
@@ -72,6 +74,8 @@ export class Session {
         this.defaultBanTime = 60000; // 60 sec by default
         this.lastBanTime = this.defaultBanTime;
         this.bannedTill = 0;
+        this.failCount = 0;
+        this.maxFailCount = 3; // Session will be banned after 3 fails
     }
 
     /**
@@ -143,6 +147,14 @@ export class Session {
         }
     }
 
+    private markFail() {
+        this.failCount++;
+    }
+
+    private markSuccess() {
+        this.failCount = 0;
+    }
+
     /**
      * Checks if everything ok with the session before a request will be sent.
      * Builds a request.
@@ -169,11 +181,13 @@ export class Session {
 
         try {
             const queryResult = await this.tm.abciQuery(path);
+            this.markSuccess();
             return {
                 status: RequestStatus.OK,
                 result: queryResult
             };
         } catch (err) {
+            this.markFail();
             return {
                 status: RequestStatus.E_REQUEST,
                 error: err,
@@ -202,11 +216,13 @@ export class Session {
 
         try {
             const txSendResult = await this.tm.txWaitResponse(request);
+            this.markSuccess();
             return {
                 status: RequestStatus.OK,
                 result: txSendResult
             };
         } catch (err) {
+            this.markFail();
             return {
                 status: RequestStatus.E_REQUEST,
                 error: err,
@@ -235,6 +251,7 @@ export class Session {
         try {
             broadcastTxResult = await this.tm.broadcastTxSync(request.payload);
         } catch (err) {
+            this.markFail();
             return {
                 status: RequestStatus.E_REQUEST,
                 error: err,
@@ -254,6 +271,7 @@ export class Session {
             }
         }
 
+        this.markSuccess();
         return {
             status: RequestStatus.OK,
             result: request.path,
