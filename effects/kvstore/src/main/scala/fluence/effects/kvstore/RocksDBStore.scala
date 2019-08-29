@@ -119,7 +119,7 @@ object RocksDBStore {
     folder: String,
     createIfMissing: Boolean = true,
     ex: ⇒ ExecutorService = Executors.newCachedThreadPool(),
-    readOnly: Boolean = false,
+    readOnly: Boolean = false
   )(
     implicit
     keysCodec: PureCodec[K, Array[Byte]],
@@ -141,7 +141,7 @@ object RocksDBStore {
     folder: String,
     createIfMissing: Boolean = true,
     ex: ⇒ ExecutorService = Executors.newSingleThreadExecutor(),
-    readOnly: Boolean = false,
+    readOnly: Boolean = false
   ): Resource[F, KVStore[F, Array[Byte], Array[Byte]]] =
     // We want to prepare all the C++ objects of RocksDB, and have all of them closed even in case of error
     for {

@@ -27,7 +27,6 @@ import cats.syntax.flatMap._
 import com.github.jtendermint.jabci.socket.TSocket
 import com.softwaremill.sttp.SttpBackend
 import fluence.EitherTSttpBackend
-import fluence.effects.tendermint.rpc.TendermintRpc
 import fluence.effects.tendermint.rpc.http.TendermintHttpRpc
 import fluence.log.{Log, LogFactory, LogLevel}
 import fluence.statemachine.config.StateMachineConfig
@@ -50,9 +49,6 @@ import scala.language.higherKinds
  */
 object ServerRunner extends IOApp {
 
-  private val sttpResource: Resource[IO, SttpBackend[EitherT[IO, Throwable, ?], fs2.Stream[IO, ByteBuffer]]] =
-    Resource.make(IO(EitherTSttpBackend[IO]()))(sttpBackend ⇒ IO(sttpBackend.close()))
-
   override def run(args: List[String]): IO[ExitCode] =
     StateMachineConfig
       .load[IO]()
@@ -66,15 +62,7 @@ object ServerRunner extends IOApp {
           _ <- (
             for {
               control ← ControlServer.make[IO](config.control)
-
-              sttp ← sttpResource
-
-              tendermintRpc ← {
-                implicit val s = sttp
-                TendermintRpc.make[IO](config.tendermintRpc.host, config.tendermintRpc.port)
-              }
-
-              _ ← abciHandlerResource(config.abciPort, config, control, tendermintRpc)
+              _ ← abciHandlerResource(config.abciPort, config, control)
             } yield control.signals.stop
           ).use(identity)
         } yield ExitCode.Success
@@ -91,8 +79,7 @@ object ServerRunner extends IOApp {
   private def abciHandlerResource(
     abciPort: Int,
     config: StateMachineConfig,
-    controlServer: ControlServer[IO],
-    tendermintRpc: TendermintRpc[IO]
+    controlServer: ControlServer[IO]
   )(implicit log: Log[IO], lf: LogFactory[IO]): Resource[IO, Unit] =
     Resource
       .make(

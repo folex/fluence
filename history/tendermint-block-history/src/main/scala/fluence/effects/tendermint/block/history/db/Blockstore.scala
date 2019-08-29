@@ -147,6 +147,6 @@ object Blockstore {
                   .makeRaw[F](p.toString, createIfMissing = false, readOnly = true)
                   .map(kv => new Blockstore(kv))
             )
-        )
+          )
     )
 }
