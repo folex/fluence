@@ -108,6 +108,36 @@ lazy val `vm-hello-world-runner` = (project in file("vm/src/it/resources/test-ca
   .dependsOn(`vm`, `vm-hello-world`)
   .enablePlugins(AutomateHeaderPlugin)
 
+lazy val `morph` = (project in file("morph"))
+  .settings(
+    commons,
+    kindProjector,
+    libraryDependencies ++= Seq(
+      cats
+    )
+  )
+  .enablePlugins(AutomateHeaderPlugin)
+
+lazy val `morph-scodec` = (project in file("morph/scodec"))
+  .settings(
+    commons,
+    libraryDependencies ++= Seq(
+      scodecBits
+    )
+  )
+  .enablePlugins(AutomateHeaderPlugin)
+  .dependsOn(`morph`)
+
+lazy val `morph-circe` = (project in file("morph/circe"))
+  .settings(
+    commons,
+    libraryDependencies ++= Seq(
+      circeCore
+    )
+  )
+  .enablePlugins(AutomateHeaderPlugin)
+  .dependsOn(`morph`)
+
 lazy val `merkelized-bytebuffer` = (project in file("vm/merkelized-bytebuffer"))
   .settings(
     commons,
