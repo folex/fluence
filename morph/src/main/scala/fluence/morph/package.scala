@@ -16,9 +16,7 @@
 
 package fluence
 
-import cats.arrow.Category
 import cats.data.Kleisli
-import cats.instances.either._
 import cats.syntax.either._
 
 package object morph {
@@ -28,23 +26,7 @@ package object morph {
 
   type From[B, A] = A =?> B
 
-  type <=?>[A, B] = (A =?> B, B =?> A)
-
-  type FromInto[A, B] = A <=?> B
+  type <=?>[A, B] = A FromInto B
 
   implicit def identityMorph[T]: T =?> T = Kleisli(t ⇒ t.asRight)
-
-  implicit def swapBiMorph[A, B](implicit ab: A <=?> B): B <=?> A = ab.swap
-
-  implicit def pickMorphDirect[A, B](implicit ab: A <=?> B): A =?> B = ab._1
-
-  implicit def pickMorphInverse[A, B](implicit ab: A <=?> B): A From B = ab._2
-
-  implicit object BiMorphCategory extends Category[<=?>] {
-    override def id[A]: (A =?> A, A =?> A) =
-      (identityMorph, identityMorph)
-
-    override def compose[A, B, C](f: (B =?> C, C =?> B), g: (A =?> B, B =?> A)): (A =?> C, C =?> A) =
-      (f._1 compose g._1, f._2 andThen g._2)
-  }
 }

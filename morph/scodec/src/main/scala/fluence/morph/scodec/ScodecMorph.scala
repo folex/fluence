@@ -17,7 +17,7 @@
 package fluence.morph.scodec
 
 import cats.data.Kleisli
-import fluence.morph.{<=?>, MorphError}
+import fluence.morph.{<=?>, FromInto, MorphError}
 import scodec.bits.ByteVector
 
 import scala.util.Try
@@ -27,7 +27,7 @@ object ScodecMorph {
 
   object Base64 {
     implicit val byteVectorB64: String <=?> ByteVector =
-      (
+      FromInto(
         Kleisli(s ⇒ ByteVector.fromBase64Descriptive(s).leftMap(MorphError(_))),
         Kleisli(bv ⇒ bv.toBase64.asRight[MorphError])
       )
@@ -35,7 +35,7 @@ object ScodecMorph {
 
   object Base58 {
     implicit val byteVectorB58: String <=?> ByteVector =
-      (
+      FromInto(
         Kleisli(s ⇒ ByteVector.fromBase58Descriptive(s).leftMap(MorphError(_))),
         Kleisli(bv ⇒ Right(bv.toBase58))
       )
@@ -43,7 +43,7 @@ object ScodecMorph {
 
   object Hex {
     implicit val byteVectorHex: String <=?> ByteVector =
-      (
+      FromInto(
         Kleisli(s ⇒ ByteVector.fromHexDescriptive(s).leftMap(MorphError(_))),
         Kleisli(bv ⇒ Right(bv.toHex))
       )
@@ -51,7 +51,7 @@ object ScodecMorph {
 
   object RawString {
     implicit val byteVectorRawString: String <=?> ByteVector =
-      (
+      FromInto(
         Kleisli(str ⇒ Right(ByteVector(str.getBytes))),
         Kleisli(
           bv ⇒

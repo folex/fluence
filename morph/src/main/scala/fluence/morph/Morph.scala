@@ -24,6 +24,8 @@ object Morph extends {
 
   def from[A, B](implicit ba: A From B): B =?> A = ba
 
+  def fromInto[A, B](implicit ab: A <=?> B): A FromInto B = ab
+
   def connect[A, B, C](implicit ab: A =?> B, bc: B =?> C): A =?> C = ab andThen bc
   def connect[A, B, C, D](implicit ab: A =?> B, bc: B =?> C, cd: C =?> D): A =?> D = ab andThen bc andThen cd
 

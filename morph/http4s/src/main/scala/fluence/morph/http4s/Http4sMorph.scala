@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-package fluence.effects.sttp
+package fluence.morph.http4s
 
-import cats.Monad
 import cats.data.EitherT
-import com.softwaremill.sttp.Response
+import cats.syntax.functor._
+import cats.effect.Sync
+import fluence.morph.=?>
+import org.http4s.{EntityDecoder, InvalidMessageBodyFailure, MediaRange}
 
 import scala.language.higherKinds
 
-package object syntax {
-  implicit class ResponseFOps[F[_]: Monad, T](resp: EitherT[F, SttpError, Response[T]]) {
+object Http4sMorph {
 
-    def toBody: EitherT[F, SttpError, T] =
-      resp.subflatMap(_.body.left.map(SttpBodyError))
-
-    def decodeBody[TT](fn: T ⇒ Either[Throwable, TT]): EitherT[F, SttpError, TT] =
-      toBody.subflatMap(fn(_).left.map(SttpDecodeError))
-
-    def morphBody[TT](implicit fn: T =?> TT): EitherT[F, SttpError, TT] =
-      toBody.subflatMap(fn(_).left.map(SttpDecodeError))
-  }
+  def decodeStringEntity[F[_]: Sync, T](
+    mediaRange: MediaRange = MediaRange.`*/*`
+  )(implicit dec: String =?> T): EntityDecoder[F, T] =
+    EntityDecoder.decodeBy[F, T](mediaRange)(
+      msg ⇒
+        EitherT(EntityDecoder.decodeString(msg).map(dec.run(_)))
+          .leftMap(e ⇒ InvalidMessageBodyFailure(e.getMessage, e.cause))
+    )
 }

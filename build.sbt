@@ -138,6 +138,16 @@ lazy val `morph-circe` = (project in file("morph/circe"))
   .enablePlugins(AutomateHeaderPlugin)
   .dependsOn(`morph`)
 
+lazy val `morph-http4s` = (project in file("morph/http4s"))
+  .settings(
+    commons,
+    libraryDependencies ++= Seq(
+      http4sDsl
+    )
+  )
+  .enablePlugins(AutomateHeaderPlugin)
+  .dependsOn(`morph`)
+
 lazy val `merkelized-bytebuffer` = (project in file("vm/merkelized-bytebuffer"))
   .settings(
     commons,
