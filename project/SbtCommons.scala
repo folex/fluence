@@ -15,6 +15,7 @@ object SbtCommons {
 
   val kindProjector = Seq(
     resolvers += Resolver.sonatypeRepo("releases"),
+    resolvers += Resolver.mavenLocal,
     addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.10.0")
   )
 
@@ -54,14 +55,16 @@ object SbtCommons {
       compile := (compile in Compile)
         .dependsOn(Def.task {
           // by defaults, user.dir in sbt points to a submodule directory while in Idea to the project root
-          val resourcesPath = if (System.getProperty("user.dir").endsWith("/vm"))
-            System.getProperty("user.dir") + "/src/it/resources/"
-          else
-            System.getProperty("user.dir") + "/vm/src/it/resources/"
+          val resourcesPath =
+            if (System.getProperty("user.dir").endsWith("/vm"))
+              System.getProperty("user.dir") + "/src/it/resources/"
+            else
+              System.getProperty("user.dir") + "/vm/src/it/resources/"
 
           val log = streams.value.log
           val llamadbUrl = "https://github.com/fluencelabs/llamadb-wasm/releases/download/0.1.2/llama_db.wasm"
-          val llamadbPreparedUrl = "https://github.com/fluencelabs/llamadb-wasm/releases/download/0.1.2/llama_db_prepared.wasm"
+          val llamadbPreparedUrl =
+            "https://github.com/fluencelabs/llamadb-wasm/releases/download/0.1.2/llama_db_prepared.wasm"
 
           log.info(s"Dowloading llamadb from $llamadbUrl to $resourcesPath")
 
@@ -70,10 +73,9 @@ object SbtCommons {
           val llamadbPreparedDownloadRet = s"wget -nc $llamadbPreparedUrl -O $resourcesPath/llama_db_prepared.wasm" !
 
           // wget returns 0 of file was downloaded and 1 if file already exists
-          assert(llamadbDownloadRet == 0 || llamadbDownloadRet == 1,
-            s"Download failed: $llamadbUrl")
+          assert(llamadbDownloadRet == 0 || llamadbDownloadRet == 1, s"Download failed: $llamadbUrl")
           assert(llamadbPreparedDownloadRet == 0 || llamadbPreparedDownloadRet == 1,
-            s"Download failed: $llamadbPreparedUrl")
+                 s"Download failed: $llamadbPreparedUrl")
         })
         .value
     )
@@ -100,6 +102,8 @@ object SbtCommons {
     )
 
   /* Common deps */
+
+  val jABCI = "com.github.jtendermint" % "jabci" % "0.32.3"
 
   val asmble = "com.github.cretz.asmble" % "asmble-compiler" % "0.4.10-fl"
 

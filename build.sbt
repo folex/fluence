@@ -113,9 +113,7 @@ lazy val `statemachine-client` = (project in file("statemachine/client"))
 lazy val `statemachine-abci` = (project in file("statemachine/abci"))
   .settings(
     commons,
-    libraryDependencies ++= Seq(
-      "com.github.jtendermint" % "jabci" % "0.26.0"
-    )
+    libraryDependencies += jABCI
   )
   .enablePlugins(AutomateHeaderPlugin)
   .dependsOn(`statemachine-api`)
