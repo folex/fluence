@@ -103,7 +103,7 @@ object SbtCommons {
 
   /* Common deps */
 
-  val jABCI = "com.github.jtendermint" % "jabci" % "0.32.3"
+  val jABCI = "com.github.jtendermint" % "jabci" % "0.32.3.1"
 
   val asmble = "com.github.cretz.asmble" % "asmble-compiler" % "0.4.10-fl"
 
